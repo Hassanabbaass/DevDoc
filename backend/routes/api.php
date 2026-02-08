@@ -1,16 +1,25 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\TeamController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/health', [HealthController::class, 'index']);
-
-// Auth Routes
+// Public Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // Rate limit: 5 attempts per minute
+
+// Protected Routes (Require Authentication)
+Route::middleware('auth:api')->group(function () {
+    // User Profile
+    Route::get('/auth/me', [AuthController::class, 'me']);
+    
+    // Team Management
+    Route::post('/teams', [TeamController::class, 'store']);
+    Route::post('/teams/join', [TeamController::class, 'join']);
+});

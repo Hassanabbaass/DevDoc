@@ -14,33 +14,36 @@
         "/api/register": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Register a new user",
+                "summary": "Create account",
+                "description": "Register a new user account",
                 "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
                                     "name",
                                     "email",
-                                    "password"
+                                    "password",
+                                    "password_confirmation"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Hassan"
+                                        "example": "John Doe"
                                     },
                                     "email": {
                                         "type": "string",
-                                        "format": "email",
-                                        "example": "hassan@example.com"
+                                        "example": "john@example.com"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
                                         "example": "password123"
                                     }
                                 },
@@ -51,10 +54,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "User created successfully"
+                        "description": "Account created successfully"
                     },
                     "422": {
-                        "description": "Validation Error"
+                        "description": "Validation error"
                     }
                 }
             }
@@ -62,12 +65,12 @@
         "/api/login": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Login and get JWT token",
+                "summary": "Login",
+                "description": "Login user and return JWT token",
                 "operationId": "222b2625838e3c57e017987f73598fda",
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
@@ -78,7 +81,7 @@
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "hassan@example.com"
+                                        "example": "john@example.com"
                                     },
                                     "password": {
                                         "type": "string",
@@ -92,12 +95,38 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Successful login"
+                        "description": "Login successful"
                     },
                     "401": {
-                        "description": "Unauthorized"
+                        "description": "Invalid credentials"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get current user",
+                "description": "Get authenticated user profile",
+                "operationId": "b5de204f5e452ef51327c691aa99e77c",
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/health": {
@@ -126,6 +155,97 @@
                     }
                 }
             }
+        },
+        "/api/teams": {
+            "post": {
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Create team",
+                "description": "Create a new team and assign creator as owner",
+                "operationId": "4941f3c784ffd96605f0689a9281a00c",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Engineering Team"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Team created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/teams/join": {
+            "post": {
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Join via invite code",
+                "description": "Join a team using an invite code",
+                "operationId": "22305cae72ef316a4ed619ca23ff818d",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "invite_code"
+                                ],
+                                "properties": {
+                                    "invite_code": {
+                                        "type": "string",
+                                        "example": "ABC123XYZ"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully joined team"
+                    },
+                    "404": {
+                        "description": "Invalid invite code"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -141,12 +261,16 @@
     },
     "tags": [
         {
-            "name": "Authentication",
-            "description": "Authentication"
+            "name": "Auth",
+            "description": "Auth"
         },
         {
             "name": "Health",
             "description": "Health"
+        },
+        {
+            "name": "Teams",
+            "description": "Teams"
         }
     ]
 }
